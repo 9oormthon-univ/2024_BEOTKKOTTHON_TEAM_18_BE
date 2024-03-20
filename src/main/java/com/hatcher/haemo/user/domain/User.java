@@ -15,6 +15,8 @@ import org.hibernate.annotations.Where;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.hatcher.haemo.common.constants.Constant.ACTIVE;
+
 @Entity
 @Getter
 @DynamicInsert
@@ -51,6 +53,10 @@ public class User extends BaseEntity {
         this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
+    }
+
+    public void login() {
+        this.setStatus(ACTIVE);
     }
 }
 

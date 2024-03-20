@@ -3,6 +3,7 @@ package com.hatcher.haemo.user.presentation;
 import com.hatcher.haemo.common.BaseException;
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.user.application.UserService;
+import com.hatcher.haemo.user.dto.LoginRequest;
 import com.hatcher.haemo.user.dto.SignupRequest;
 import com.hatcher.haemo.user.dto.TokenResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,16 @@ public class UserController {
     public BaseResponse<TokenResponse> signup(@RequestBody SignupRequest signupRequest) {
         try {
             return BaseResponse.success(userService.signup(signupRequest));
+        } catch(BaseException e) {
+            return BaseResponse.failure(e.getStatus());
+        }
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public BaseResponse<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            return BaseResponse.success(userService.login(loginRequest));
         } catch(BaseException e) {
             return BaseResponse.failure(e.getStatus());
         }
