@@ -13,26 +13,37 @@ import static com.hatcher.haemo.common.BaseResponseStatus.SUCCESS;
 @JsonPropertyOrder({"isSuccess", "code", "message", "result"})
 public class BaseResponse<T> {
 
+    private final int code;
+
     @JsonProperty("isSuccess")
     private final Boolean isSuccess;
-
     private final String message;
-
-    private final int code;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T result;
 
-    public BaseResponse(T result) {
-        this.isSuccess = SUCCESS.isSuccess();
-        this.message = SUCCESS.getMessage();
-        this.code = SUCCESS.getCode();
-        this.result = result;
+
+    public static <T> BaseResponse<T> success() {
+        return new BaseResponse<>(
+                SUCCESS.getCode(),
+                SUCCESS.isSuccess(),
+                SUCCESS.getMessage(),
+                null);
     }
 
-    public BaseResponse(BaseResponseStatus status) {
-        this.isSuccess = status.isSuccess();
-        this.message = status.getMessage();
-        this.code = status.getCode();
+    public static <T> BaseResponse<T> success(T result) {
+        return new BaseResponse<>(
+                SUCCESS.getCode(),
+                SUCCESS.isSuccess(),
+                SUCCESS.getMessage(),
+                result);
+    }
+
+    public static <T> BaseResponse<T> failure(BaseResponseStatus status) {
+        return new BaseResponse<>(
+                status.getCode(),
+                status.isSuccess(),
+                status.getMessage(),
+                null);
     }
 }
