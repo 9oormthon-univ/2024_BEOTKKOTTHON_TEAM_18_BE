@@ -3,10 +3,7 @@ package com.hatcher.haemo.user.presentation;
 import com.hatcher.haemo.common.BaseException;
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.user.application.UserService;
-import com.hatcher.haemo.user.dto.LoginRequest;
-import com.hatcher.haemo.user.dto.NicknameRequest;
-import com.hatcher.haemo.user.dto.SignupRequest;
-import com.hatcher.haemo.user.dto.TokenResponse;
+import com.hatcher.haemo.user.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +40,17 @@ public class UserController {
     public BaseResponse<String> validateNickname(@RequestBody NicknameRequest nicknameRequest) {
         try {
             userService.validateNickname(nicknameRequest.nickname());
+            return BaseResponse.success();
+        } catch (BaseException e){
+            return BaseResponse.failure(e.getStatus());
+        }
+    }
+
+    // 아이디 중복 체크
+    @PostMapping("/loginId")
+    public BaseResponse<String> validateLoginId(@RequestBody LoginIdRequest loginIdRequest) {
+        try {
+            userService.validateLoginId(loginIdRequest.loginId());
             return BaseResponse.success();
         } catch (BaseException e){
             return BaseResponse.failure(e.getStatus());
