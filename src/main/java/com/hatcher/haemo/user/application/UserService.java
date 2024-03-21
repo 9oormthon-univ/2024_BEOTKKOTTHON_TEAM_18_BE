@@ -1,10 +1,8 @@
 package com.hatcher.haemo.user.application;
 
-import com.hatcher.haemo.common.BaseException;
+import com.hatcher.haemo.common.exception.*;
 import com.hatcher.haemo.user.domain.User;
-import com.hatcher.haemo.user.dto.LoginRequest;
-import com.hatcher.haemo.user.dto.SignupRequest;
-import com.hatcher.haemo.user.dto.TokenResponse;
+import com.hatcher.haemo.user.dto.*;
 import com.hatcher.haemo.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -37,7 +35,7 @@ public class UserService {
 
     // 로그인
     @Transactional(rollbackFor = Exception.class)
-    public TokenResponse login(LoginRequest loginRequest) throws BaseException {
+    public TokenResponse login(LoginRequest loginRequest) throws BaseException{
         try {
             User user = userRepository.findByLoginId(loginRequest.loginId()).orElseThrow(() -> new BaseException(LOGIN_ID_NOT_FOUND));
             if(!encoder.matches(loginRequest.password(), user.getPassword())) throw new BaseException(WRONG_PASSWORD);
@@ -67,11 +65,12 @@ public class UserService {
     public User getUserByUserIdx(Long userIdx) {
         if(userIdx == null) return null;
         else {
-            Optional<User> user = userRepository.findById(userIdx);
+            Optional<User> user = userRepository.findByUserIdx(userIdx);
             return user.orElse(null);
         }
     }
 
+    // 회원만
     public Long getUserIdxWithValidation() throws BaseException {
         Long userIdx = authService.getUserIdx();
         if (userIdx == null) throw new BaseException(NULL_ACCESS_TOKEN);

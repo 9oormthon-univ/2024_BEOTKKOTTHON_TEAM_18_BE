@@ -20,9 +20,11 @@ public enum BaseResponseStatus {
     INVALID_ACCESS_TOKEN(false, HttpStatus.BAD_REQUEST, "잘못된 access token 입니다."),
     NULL_ACCESS_TOKEN(false, HttpStatus.BAD_REQUEST, "access token을 입력해주세요."),
     INVALID_JWT_SIGNATURE(false, HttpStatus.BAD_REQUEST, "유효하지 않은 JWT 시그니처입니다."),
-    EXPIRED_ACCESS_TOKEN(false, HttpStatus.BAD_REQUEST, "만료된 토큰입니다."),
+    EXPIRED_ACCESS_TOKEN(false, HttpStatus.BAD_REQUEST, "만료된 access token 입니다."),
+    EXPIRED_REFRESH_TOKEN(false, HttpStatus.BAD_REQUEST, "만료된 refresh token 입니다."),
     EMPTY_JWT_CLAIM(false, HttpStatus.BAD_REQUEST, "JWT claims string이 비었습니다."),
     UNSUPPORTED_JWT_TOKEN(false, HttpStatus.BAD_REQUEST, "지원하지 않는 JWT 토큰 형식입니다."),
+    INVALID_REFRESH_TOKEN(false, HttpStatus.BAD_REQUEST, "유효하지 않은 refresh token 입니다."),
 
     ACCESS_DENIED(false, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 

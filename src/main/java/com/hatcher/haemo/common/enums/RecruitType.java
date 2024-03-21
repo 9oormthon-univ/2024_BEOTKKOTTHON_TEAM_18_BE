@@ -1,7 +1,6 @@
 package com.hatcher.haemo.common.enums;
 
-import com.hatcher.haemo.common.BaseException;
-
+import com.hatcher.haemo.common.exception.BaseException;
 import java.util.Arrays;
 
 import static com.hatcher.haemo.common.enums.BaseResponseStatus.WRONG_RECRUIT_TYPE;
@@ -16,12 +15,21 @@ public enum RecruitType {
     COIN_KARAOKE("코인노래방"),
     DELIVERY_FOOD("배달음식");
 
-    RecruitType(String name) {}
+    private final String description; // 설명 필드 추가
 
-    public static RecruitType getEnumByName(String name) throws BaseException {
+    RecruitType(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() { // 설명을 반환하는 메소드
+        return description;
+    }
+
+    public static RecruitType getEnumByName(String name) throws BaseException{
         return Arrays.stream(RecruitType.values())
-                .filter(recruitType -> recruitType.name().equalsIgnoreCase(name))
+                .filter(recruitType -> recruitType.getDescription().equalsIgnoreCase(name))
                 .findFirst()
+                //.orElseThrow(() -> new IllegalArgumentException("찾을 수 없습니다."));
                 .orElseThrow(() -> new BaseException(WRONG_RECRUIT_TYPE));
     }
 }
