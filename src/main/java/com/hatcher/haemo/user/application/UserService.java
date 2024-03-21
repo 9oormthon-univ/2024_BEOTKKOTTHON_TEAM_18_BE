@@ -71,4 +71,10 @@ public class UserService {
             return user.orElse(null);
         }
     }
+
+    public Long getUserIdxWithValidation() throws BaseException {
+        Long userIdx = authService.getUserIdx();
+        if (userIdx == null) throw new BaseException(NULL_ACCESS_TOKEN);
+        return userIdx;
+    }
 }
