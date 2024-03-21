@@ -66,5 +66,6 @@ public enum BaseResponseStatus {
     public int getCode() {
         return httpStatus.value();
     }
+    public HttpStatus getHttpStatus() {return httpStatus; }
 }
 
