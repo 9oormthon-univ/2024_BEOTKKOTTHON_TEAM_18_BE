@@ -38,7 +38,7 @@ public class RecruitmentService {
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
-            throw e;
+            throw new BaseException(INTERNAL_SERVER_ERROR);
         }
     }
 }
