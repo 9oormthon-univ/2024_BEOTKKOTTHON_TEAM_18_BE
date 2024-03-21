@@ -22,6 +22,7 @@ public enum BaseResponseStatus {
     INVALID_USER_IDX(false, HttpStatus.NOT_FOUND, "해당 userIdx로 user를 찾을 수 없습니다."),
 
     DUPLICATED_NICKNAME(false, HttpStatus.CONFLICT, "중복된 닉네임입니다."),
+    DUPLICATED_LOGIN_ID(false, HttpStatus.CONFLICT, "중복된 로그인 아이디입니다."),
 
     // recruitment(2100-2199)
 
