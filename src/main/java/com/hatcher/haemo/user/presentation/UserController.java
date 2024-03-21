@@ -18,42 +18,26 @@ public class UserController {
     // 회원가입
     @PostMapping(value = "/signup")
     public BaseResponse<TokenResponse> signup(@RequestBody SignupRequest signupRequest) {
-        try {
-            return BaseResponse.success(userService.signup(signupRequest));
-        } catch(BaseException e) {
-            return BaseResponse.failure(e.getStatus());
-        }
+        return BaseResponse.success(userService.signup(signupRequest));
     }
 
     // 로그인
     @PostMapping("/login")
     public BaseResponse<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            return BaseResponse.success(userService.login(loginRequest));
-        } catch(BaseException e) {
-            return BaseResponse.failure(e.getStatus());
-        }
+        return BaseResponse.success(userService.login(loginRequest));
     }
 
     // 닉네임 중복 체크
     @PostMapping("/nickname")
     public BaseResponse<String> validateNickname(@RequestBody NicknameRequest nicknameRequest) {
-        try {
-            userService.validateNickname(nicknameRequest.nickname());
-            return BaseResponse.success();
-        } catch (BaseException e){
-            return BaseResponse.failure(e.getStatus());
-        }
+        userService.validateNickname(nicknameRequest.nickname());
+        return BaseResponse.success();
     }
 
     // 아이디 중복 체크
     @PostMapping("/loginId")
     public BaseResponse<String> validateLoginId(@RequestBody LoginIdRequest loginIdRequest) {
-        try {
-            userService.validateLoginId(loginIdRequest.loginId());
-            return BaseResponse.success();
-        } catch (BaseException e){
-            return BaseResponse.failure(e.getStatus());
-        }
+        userService.validateLoginId(loginIdRequest.loginId());
+        return BaseResponse.success();
     }
 }

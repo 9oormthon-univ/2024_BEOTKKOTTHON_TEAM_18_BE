@@ -1,13 +1,15 @@
 package com.hatcher.haemo.common;
 
 import com.hatcher.haemo.common.enums.BaseResponseStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.web.server.ResponseStatusException;
 
-@Getter
-@Setter
-@AllArgsConstructor
-public class BaseException extends Exception {
-    private BaseResponseStatus status;
+public class BaseException extends ResponseStatusException {
+    private final boolean success;
+    private final Object data;
+
+    public BaseException(BaseResponseStatus status) {
+        super(status.getHttpStatus(), status.getMessage());
+        this.success = false;
+        this.data = null;
+    }
 }
