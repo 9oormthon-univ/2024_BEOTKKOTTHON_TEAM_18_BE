@@ -11,7 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.hatcher.haemo.common.BaseResponseStatus.*;
+import java.util.Optional;
+
+import static com.hatcher.haemo.common.enums.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -60,5 +62,13 @@ public class UserService {
     // 아이디 중복 체크
     public void validateLoginId(String loginId) throws BaseException {
         if(userRepository.existsByLoginId(loginId)) throw new BaseException(DUPLICATED_LOGIN_ID);
+    }
+
+    public User getUserByUserIdx(Long userIdx) {
+        if(userIdx == null) return null;
+        else {
+            Optional<User> user = userRepository.findById(userIdx);
+            return user.orElse(null);
+        }
     }
 }
