@@ -51,4 +51,9 @@ public class UserService {
             throw new BaseException(INTERNAL_SERVER_ERROR);
         }
     }
+
+    // 닉네임 중복 체크
+    public void validateNickname(String nickname) throws BaseException {
+        if(userRepository.existsByNickname(nickname)) throw new BaseException(DUPLICATED_NICKNAME);
+    }
 }
