@@ -33,6 +33,7 @@ public enum BaseResponseStatus {
     DUPLICATED_LOGIN_ID(false, HttpStatus.CONFLICT, "중복된 로그인 아이디입니다."),
 
     // recruitment(2100-2199)
+    WRONG_RECRUIT_TYPE(false, HttpStatus.NOT_FOUND, "해당 Recruit type을 찾을 수 없습니다."),
 
     // comment(2200-2299)
 
