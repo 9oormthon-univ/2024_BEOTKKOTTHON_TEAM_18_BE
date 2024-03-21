@@ -18,7 +18,7 @@ import static com.hatcher.haemo.common.enums.BaseResponseStatus.*;
 public class AuthService {
 
     @Value("${jwt.access-token-validity-in-millis}")
-    private int accessTokenExpirationTime;
+    private long accessTokenExpirationTime;
 
     @Value("${jwt.secret-key}")
     private String secretKey;

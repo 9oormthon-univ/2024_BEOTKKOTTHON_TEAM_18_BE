@@ -20,7 +20,7 @@ public enum RecruitType {
 
     public static RecruitType getEnumByName(String name) throws BaseException {
         return Arrays.stream(RecruitType.values())
-                .filter(contents -> contents.name().equalsIgnoreCase(name))
+                .filter(recruitType -> recruitType.name().equalsIgnoreCase(name))
                 .findFirst()
                 .orElseThrow(() -> new BaseException(WRONG_RECRUIT_TYPE));
     }
