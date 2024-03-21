@@ -1,8 +1,6 @@
 package com.hatcher.haemo.user.application;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +10,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Date;
+
+import static com.hatcher.haemo.common.enums.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -60,5 +60,28 @@ public class AuthService {
             return bearerToken.substring(7);
         }
         else return null;
+    }
+
+    // Token validation check
+    public Boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            return true;
+        } catch (SignatureException ex) {
+            System.out.println("Invalid JWT signature");
+            throw new JwtException(INVALID_JWT_SIGNATURE.getMessage());
+        } catch (MalformedJwtException ex) {
+            System.out.println("Invalid JWT token");
+            throw new JwtException(INVALID_ACCESS_TOKEN.getMessage());
+        } catch (ExpiredJwtException ex) {
+            System.out.println("Expired JWT token");
+            throw new JwtException(EXPIRED_ACCESS_TOKEN.getMessage());
+        } catch (UnsupportedJwtException ex) {
+            System.out.println("Unsupported JWT token");
+            throw new JwtException(UNSUPPORTED_JWT_TOKEN.getMessage());
+        } catch (IllegalArgumentException ex) {
+            System.out.println("JWT claims string is empty.");
+            throw new JwtException(EMPTY_JWT_CLAIM.getMessage());
+        }
     }
 }
