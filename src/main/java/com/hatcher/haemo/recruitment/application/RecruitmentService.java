@@ -1,6 +1,7 @@
 package com.hatcher.haemo.recruitment.application;
 
-import com.hatcher.haemo.common.BaseException;
+import com.hatcher.haemo.common.BaseResponse;
+import com.hatcher.haemo.common.exception.BaseException;
 import com.hatcher.haemo.common.enums.RecruitType;
 import com.hatcher.haemo.recruitment.domain.Recruitment;
 import com.hatcher.haemo.recruitment.dto.RecruitmentPostRequest;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.hatcher.haemo.common.constants.Constant.Recruitment.RECRUITING;
-import static com.hatcher.haemo.common.enums.BaseResponseStatus.INTERNAL_SERVER_ERROR;
-import static com.hatcher.haemo.common.enums.BaseResponseStatus.INVALID_USER_IDX;
+import static com.hatcher.haemo.common.enums.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class RecruitmentService {
 
     // 모집글 등록
     @Transactional(rollbackFor = Exception.class)
-    public void postRecruitment(RecruitmentPostRequest recruitmentPostRequest) throws BaseException {
+    public BaseResponse<String> postRecruitment(RecruitmentPostRequest recruitmentPostRequest) throws BaseException{
         try {
             User leader = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
 
@@ -34,10 +34,11 @@ public class RecruitmentService {
                     recruitmentPostRequest.participantLimit(), recruitmentPostRequest.contactUrl(), recruitmentPostRequest.description());
             recruitment.setStatus(RECRUITING);
             recruitmentRepository.save(recruitment);
+            return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
-            throw new BaseException(INTERNAL_SERVER_ERROR);
+            throw e;
         }
     }
 }
