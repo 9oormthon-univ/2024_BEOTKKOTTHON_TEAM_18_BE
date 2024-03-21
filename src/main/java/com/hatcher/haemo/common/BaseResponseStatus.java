@@ -16,8 +16,12 @@ public enum BaseResponseStatus {
      * 2000: Request 오류
      */
     // user(2000-2049)
-    LOGIN_ID_NOT_FOUND(false, HttpStatus.NOT_FOUND, "해당 loginId로 user를 찾을 수 없습니다."),
     WRONG_PASSWORD(false, HttpStatus.BAD_REQUEST, "잘못된 password 입니다."),
+
+    LOGIN_ID_NOT_FOUND(false, HttpStatus.NOT_FOUND, "해당 loginId로 user를 찾을 수 없습니다."),
+    INVALID_USER_IDX(false, HttpStatus.NOT_FOUND, "해당 userIdx로 user를 찾을 수 없습니다."),
+
+    DUPLICATED_NICKNAME(false, HttpStatus.CONFLICT, "중복된 닉네임입니다."),
 
     // recruitment(2100-2199)
 
