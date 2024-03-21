@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
 
-    @Column(columnDefinition = "varchar(10) default 'recruiting'")
+    @Column(columnDefinition = "varchar(10) default 'active'")
     @Setter
     private String status;
 
