@@ -4,9 +4,12 @@ import com.hatcher.haemo.comment.dto.CommentDto;
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.common.exception.BaseException;
 import com.hatcher.haemo.common.enums.RecruitType;
+import com.hatcher.haemo.notification.domain.Notification;
+import com.hatcher.haemo.notification.repository.NotificationRepository;
 import com.hatcher.haemo.recruitment.domain.Participant;
 import com.hatcher.haemo.recruitment.domain.Recruitment;
 import com.hatcher.haemo.recruitment.dto.*;
+import com.hatcher.haemo.recruitment.repository.ParticipantRepository;
 import com.hatcher.haemo.recruitment.repository.RecruitmentRepository;
 import com.hatcher.haemo.user.application.UserService;
 import com.hatcher.haemo.user.domain.User;
@@ -31,6 +34,8 @@ public class RecruitmentService {
     private final UserService userService;
     private final UserRepository userRepository;
     private final RecruitmentRepository recruitmentRepository;
+    private final ParticipantRepository participantRepository;
+    private final NotificationRepository notificationRepository;
 
     // 모집글 등록
     @Transactional(rollbackFor = Exception.class)
@@ -116,6 +121,7 @@ public class RecruitmentService {
     }
 
     // 띱 수정
+    @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> editRecruitment(Long recruitmentIdx, RecruitmentEditRequest recruitmentEditRequest) throws BaseException {
         try {
             User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
@@ -158,6 +164,40 @@ public class RecruitmentService {
         } catch (Exception e) {
             throw new BaseException(INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // 띱 참여하기
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse<String> participate(Long recruitmentIdx) throws BaseException {
+        try {
+            User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Recruitment recruitment = recruitmentRepository.findById(recruitmentIdx).orElseThrow(() -> new BaseException(INVALID_RECRUITMENT_IDX));
+            if (recruitment.getLeader().equals(user)) throw new BaseException(LEADER_ROLE);
+
+            if (recruitment.getParticipants().size()+2 == recruitment.getParticipantLimit()) { // 멤버 + 리더 + 현재 참여하려는 유저
+                createParticipant(user, recruitment);
+
+                recruitment.setStatus(DONE);
+                recruitmentRepository.save(recruitment);
+
+                Notification notification = new Notification(user, recruitment);
+                notificationRepository.save(notification);
+            } else if (recruitment.getParticipants().size()+2 > recruitment.getParticipantLimit()) {
+                throw new BaseException(ALREADY_DONE_RECRUITMENT);
+            } else createParticipant(user, recruitment);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void createParticipant(User user, Recruitment recruitment) {
+        Participant participant = new Participant(user, recruitment);
+        participant.setParticipant(user);
+        participant.setRecruitment(recruitment);
+        participantRepository.save(participant);
     }
 
     private void validateWriter(User user, Recruitment recruitment) throws BaseException {
