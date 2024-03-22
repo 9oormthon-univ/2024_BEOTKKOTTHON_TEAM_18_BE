@@ -3,6 +3,7 @@ package com.hatcher.haemo.recruitment.presentation;
 import com.hatcher.haemo.common.exception.BaseException;
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.recruitment.application.RecruitmentService;
+import com.hatcher.haemo.recruitment.dto.RecruitmentListResponse;
 import com.hatcher.haemo.recruitment.dto.RecruitmentPostRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +27,14 @@ public class RecruitmentController {
         }
     }
 
-//    // 모집글 목록 조회
-//    @GetMapping("")
-//    public BaseResponse<RecruitmentListResponse> getRecruitmentList() {
-//        try {
-//            return BaseResponse.success(recruitmentService.getRecruitmentList());
-//        } catch (BaseException e) {
-//            throw e;
-//        }
-//    }
+    // 모집중인 띱 목록 조회
+    // 관심분야 띱 목록 조회
+    @GetMapping("")
+    public BaseResponse<RecruitmentListResponse> getRecruitmentList(@RequestParam(required = false) String type) {
+        try {
+            return recruitmentService.getRecruitmentList(type);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
