@@ -47,6 +47,7 @@ public enum BaseResponseStatus {
     NOT_RECRUITING_STATUS(false, HttpStatus.CONFLICT, "모집중 상태가 아닙니다."),
     ALREADY_DONE_RECRUITMENT(false, HttpStatus.CONFLICT, "해당 띱은 이미 모집인원에 도달했습니다."),
     LEADER_ROLE(false, HttpStatus.BAD_REQUEST, "리더는 띱 참여가 불가능합니다."),
+    NOT_LEADER_ROLE(false, HttpStatus.BAD_REQUEST, "해당 띱의 리더가 아닙니다."),
 
     // comment(2200-2299)
 

@@ -51,7 +51,7 @@ public class RecruitmentController {
         }
     }
 
-    // 띱 수정
+    // [리더] 띱 수정
     @PatchMapping("/{recruitmentIdx}")
     public BaseResponse<?> editRecruitment(@PathVariable Long recruitmentIdx, @RequestBody RecruitmentEditRequest recruitmentEditRequest) {
         try {
@@ -61,11 +61,21 @@ public class RecruitmentController {
         }
     }
 
-    // 띱 참여하기
+    // [멤버] 띱 참여하기
     @PostMapping("/{recruitmentIdx}")
     public BaseResponse<?> postRecruitment(@PathVariable Long recruitmentIdx) {
         try {
             return recruitmentService.participate(recruitmentIdx);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 띱 모집완료 처리
+    @PatchMapping("/{recruitmentIdx}/done")
+    public BaseResponse<?> makeRecruitmentDone(@PathVariable Long recruitmentIdx) {
+        try {
+            return recruitmentService.makeRecruitmentDone(recruitmentIdx);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
