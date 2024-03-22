@@ -144,7 +144,7 @@ public class RecruitmentService {
         }
     }
 
-    // 띱 수정
+    // [리더] 띱 수정
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> editRecruitment(Long recruitmentIdx, RecruitmentEditRequest recruitmentEditRequest) throws BaseException {
         try {
@@ -190,7 +190,7 @@ public class RecruitmentService {
         }
     }
 
-    // 띱 참여하기
+    // [멤버] 띱 참여하기
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> participate(Long recruitmentIdx) throws BaseException {
         try {
@@ -204,8 +204,7 @@ public class RecruitmentService {
                 recruitment.setStatus(DONE);
                 recruitmentRepository.save(recruitment);
 
-                Notification notification = new Notification(user, recruitment);
-                notificationRepository.save(notification);
+                createNotifications(recruitment);
             } else if (recruitment.getParticipants().size()+2 > recruitment.getParticipantLimit()) {
                 throw new BaseException(ALREADY_DONE_RECRUITMENT);
             } else createParticipant(user, recruitment);
@@ -214,6 +213,36 @@ public class RecruitmentService {
             throw e;
         } catch (Exception e) {
             throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // [리더] 띱 완료 처리
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse<String> makeRecruitmentDone(Long recruitmentIdx) throws BaseException {
+        try {
+            User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Recruitment recruitment = recruitmentRepository.findById(recruitmentIdx).orElseThrow(() -> new BaseException(INVALID_RECRUITMENT_IDX));
+            if (!recruitment.getLeader().equals(user)) throw new BaseException(NOT_LEADER_ROLE);
+            if (recruitment.getStatus().equals(DONE)) throw new BaseException(ALREADY_DONE_RECRUITMENT);
+
+            recruitment.setStatus(DONE);
+            recruitmentRepository.save(recruitment);
+
+            createNotifications(recruitment);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void createNotifications(Recruitment recruitment) {
+        Notification leaderNotification = new Notification(recruitment.getLeader(), recruitment);
+        notificationRepository.save(leaderNotification);
+        for (Participant participant : recruitment.getParticipants()) {
+            Notification participantNotification = new Notification(participant.getParticipant(), recruitment);
+            notificationRepository.save(participantNotification);
         }
     }
 
