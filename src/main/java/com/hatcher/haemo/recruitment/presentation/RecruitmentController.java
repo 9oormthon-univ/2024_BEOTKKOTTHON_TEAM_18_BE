@@ -29,10 +29,11 @@ public class RecruitmentController {
 
     // 모집중인 띱 목록 조회
     // 관심분야 띱 목록 조회
+    // 참여중인 띱 목록 조회
     @GetMapping("")
-    public BaseResponse<RecruitmentListResponse> getRecruitmentList(@RequestParam(required = false) String type) {
+    public BaseResponse<RecruitmentListResponse> getRecruitmentList(@RequestParam(required = false) String type, @RequestParam(required = false) boolean isParticipant) {
         try {
-            return recruitmentService.getRecruitmentList(type);
+            return recruitmentService.getRecruitmentList(type, isParticipant);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
