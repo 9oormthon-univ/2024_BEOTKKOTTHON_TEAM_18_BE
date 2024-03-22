@@ -36,6 +36,7 @@ public enum BaseResponseStatus {
 
     // recruitment(2100-2199)
     WRONG_RECRUIT_TYPE(false, HttpStatus.NOT_FOUND, "해당 Recruit type을 찾을 수 없습니다."),
+    INVALID_RECRUITMENT_IDX(false, HttpStatus.NOT_FOUND, "해당 recruitment idx로 recruitment를 찾을 수 없습니다."),
 
     // comment(2200-2299)
 
