@@ -3,6 +3,7 @@ package com.hatcher.haemo.recruitment.presentation;
 import com.hatcher.haemo.common.exception.BaseException;
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.recruitment.application.RecruitmentService;
+import com.hatcher.haemo.recruitment.dto.RecruitResponse;
 import com.hatcher.haemo.recruitment.dto.RecruitmentListResponse;
 import com.hatcher.haemo.recruitment.dto.RecruitmentPostRequest;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,16 @@ public class RecruitmentController {
     public BaseResponse<RecruitmentListResponse> getRecruitmentList(@RequestParam(required = false) String type, @RequestParam(required = false) boolean isParticipant) {
         try {
             return recruitmentService.getRecruitmentList(type, isParticipant);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 띱 상세 조회
+    @GetMapping("/{recruitmentIdx}")
+    public BaseResponse<RecruitResponse> getRecruitment(@PathVariable Long recruitmentIdx) {
+        try {
+            return recruitmentService.getRecruitment(recruitmentIdx);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
