@@ -46,7 +46,7 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "participant")
     @Where(clause = "status = 'ACTIVE'")
-    private List<Participant> participants = new ArrayList<>(); // 해당 user가 participant로 있는 recruitment list
+    private List<Participant> participants = new ArrayList<>(); // 해당 user가 participant로 있는 recruitment list(leader로 있는 모임은 제외)
 
     @Builder
     public User(String loginId, String password, String nickname) {
