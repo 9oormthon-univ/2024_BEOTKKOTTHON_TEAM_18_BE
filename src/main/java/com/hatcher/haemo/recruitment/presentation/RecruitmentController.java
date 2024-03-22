@@ -60,4 +60,14 @@ public class RecruitmentController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    // 띱 참여하기
+    @PostMapping("/{recruitmentIdx}")
+    public BaseResponse<?> postRecruitment(@PathVariable Long recruitmentIdx) {
+        try {
+            return recruitmentService.participate(recruitmentIdx);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }

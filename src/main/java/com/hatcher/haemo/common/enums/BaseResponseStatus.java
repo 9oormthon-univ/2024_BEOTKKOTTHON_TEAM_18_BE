@@ -45,6 +45,8 @@ public enum BaseResponseStatus {
     BLANK_DESCRIPTION(false, HttpStatus.BAD_REQUEST, "description이 비었습니다."),
     LARGER_THAN_CURRENT_PARTICIPANT(false, HttpStatus.CONFLICT, "입력하신 모집 인원이 현재 참여 인원보다 작습니다."),
     NOT_RECRUITING_STATUS(false, HttpStatus.CONFLICT, "모집중 상태가 아닙니다."),
+    ALREADY_DONE_RECRUITMENT(false, HttpStatus.CONFLICT, "해당 띱은 이미 모집인원에 도달했습니다."),
+    LEADER_ROLE(false, HttpStatus.BAD_REQUEST, "리더는 띱 참여가 불가능합니다."),
 
     // comment(2200-2299)
 
