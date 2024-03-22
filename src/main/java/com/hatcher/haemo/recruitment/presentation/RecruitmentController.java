@@ -4,6 +4,7 @@ import com.hatcher.haemo.common.exception.BaseException;
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.recruitment.application.RecruitmentService;
 import com.hatcher.haemo.recruitment.dto.RecruitResponse;
+import com.hatcher.haemo.recruitment.dto.RecruitmentEditRequest;
 import com.hatcher.haemo.recruitment.dto.RecruitmentListResponse;
 import com.hatcher.haemo.recruitment.dto.RecruitmentPostRequest;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,16 @@ public class RecruitmentController {
         try {
             return recruitmentService.getRecruitment(recruitmentIdx);
         } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 띱 수정
+    @PatchMapping("/{recruitmentIdx}")
+    public BaseResponse<?> editRecruitment(@PathVariable Long recruitmentIdx, @RequestBody RecruitmentEditRequest recruitmentEditRequest) {
+        try {
+            return recruitmentService.editRecruitment(recruitmentIdx, recruitmentEditRequest);
+        } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }

@@ -66,4 +66,24 @@ public class Recruitment extends BaseEntity {
         this.leader = leader;
         leader.getRecruitments().add(this);
     }
+
+    public void modifyName(String name) {
+        this.name = name;
+    }
+
+    public void modifyType(RecruitType type) {
+        this.type = type;
+    }
+
+    public void modifyContactUrl(String contactUrl) {
+        this.contactUrl = contactUrl;
+    }
+
+    public void modifyDesscription(String description) {
+        this.description = description;
+    }
+
+    public void modifyParticipantLimit(Integer participantLimit) {
+        this.participantLimit = participantLimit;
+    }
 }
