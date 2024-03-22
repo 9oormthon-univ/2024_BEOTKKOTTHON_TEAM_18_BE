@@ -2,6 +2,7 @@ package com.hatcher.haemo.user.domain;
 
 import com.hatcher.haemo.comment.domain.Comment;
 import com.hatcher.haemo.common.BaseEntity;
+import com.hatcher.haemo.notification.domain.Notification;
 import com.hatcher.haemo.recruitment.domain.Participant;
 import com.hatcher.haemo.recruitment.domain.Recruitment;
 import jakarta.persistence.*;
@@ -47,6 +48,10 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "participant")
     @Where(clause = "status = 'ACTIVE'")
     private List<Participant> participants = new ArrayList<>(); // 해당 user가 participant로 있는 recruitment list(leader로 있는 모임은 제외)
+
+    @OneToMany(mappedBy = "user")
+    @Where(clause = "status = 'ACTIVE'")
+    private List<Notification> notifications = new ArrayList<>();
 
     @Builder
     public User(String loginId, String password, String nickname) {
