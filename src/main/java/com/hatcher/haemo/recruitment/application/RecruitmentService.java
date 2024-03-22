@@ -11,6 +11,7 @@ import com.hatcher.haemo.recruitment.domain.Recruitment;
 import com.hatcher.haemo.recruitment.dto.*;
 import com.hatcher.haemo.recruitment.repository.ParticipantRepository;
 import com.hatcher.haemo.recruitment.repository.RecruitmentRepository;
+import com.hatcher.haemo.user.application.AuthService;
 import com.hatcher.haemo.user.application.UserService;
 import com.hatcher.haemo.user.domain.User;
 import com.hatcher.haemo.user.repository.UserRepository;
@@ -36,6 +37,7 @@ public class RecruitmentService {
     private final RecruitmentRepository recruitmentRepository;
     private final ParticipantRepository participantRepository;
     private final NotificationRepository notificationRepository;
+    private final AuthService authService;
 
     // 모집글 등록
     @Transactional(rollbackFor = Exception.class)
@@ -59,27 +61,31 @@ public class RecruitmentService {
     // 띱 목록 조회
     public BaseResponse<RecruitmentListResponse> getRecruitmentList(String type, boolean isParticipant) throws BaseException {
         try {
-            User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            //User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = authService.getUserIdx();
             List<RecruitmentDto> recruitmentList = new ArrayList<>();
             if (isParticipant) { // 참여중인 띱 목록 조회
-                // 리더로 있는 recruitment 목록 조회
-                Stream<Recruitment> leaderRecruitmentStream = user.getRecruitments().stream();
+                if (userIdx != null) {
+                    User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+                    // 리더로 있는 recruitment 목록 조회
+                    Stream<Recruitment> leaderRecruitmentStream = user.getRecruitments().stream();
 
-                // 참여자로 있는 recruitment 목록 조회
-                Stream<Recruitment> participantRecruitmentStream = user.getParticipants().stream()
-                        .map(Participant::getRecruitment);
+                    // 참여자로 있는 recruitment 목록 조회
+                    Stream<Recruitment> participantRecruitmentStream = user.getParticipants().stream()
+                            .map(Participant::getRecruitment);
 
-                List<RecruitmentDto> sortedRecruitmentList = Stream.concat(leaderRecruitmentStream, participantRecruitmentStream)
-                        .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
-                        .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                                recruitment.getLeader().getNickname(), recruitment.getParticipants().size(), recruitment.getParticipantLimit(), recruitment.getDescription(),
-                                recruitment.getLeader().equals(user))).toList();
-                recruitmentList.addAll(sortedRecruitmentList);
+                    List<RecruitmentDto> sortedRecruitmentList = Stream.concat(leaderRecruitmentStream, participantRecruitmentStream)
+                            .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
+                            .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
+                                    recruitment.getLeader().getNickname(), recruitment.getParticipants().size(), recruitment.getParticipantLimit(), recruitment.getDescription(),
+                                    recruitment.getLeader().equals(user))).toList();
+                    recruitmentList.addAll(sortedRecruitmentList);
+                }
             } else {
                 if (type == null) { // 모집중인 띱 목록 조회
-                    recruitmentList = getRecruitmentList(recruitmentList, recruitmentRepository.findByStatusOrderByCreatedDateDesc(RECRUITING), user);
+                    recruitmentList = getRecruitmentList(recruitmentRepository.findByStatusOrderByCreatedDateDesc(RECRUITING), userIdx);
                 } else { // 관심분야 띱 목록 조회
-                    recruitmentList = getRecruitmentList(recruitmentList, recruitmentRepository.findByTypeAndStatusEqualsOrderByCreatedDateDesc(RecruitType.getEnumByName(type), RECRUITING), user);
+                    recruitmentList = getRecruitmentList(recruitmentRepository.findByTypeAndStatusEqualsOrderByCreatedDateDesc(RecruitType.getEnumByName(type), RECRUITING), userIdx);
                 }
             }
             return new BaseResponse<>(new RecruitmentListResponse(recruitmentList));
@@ -90,26 +96,44 @@ public class RecruitmentService {
         }
     }
 
-    private List<RecruitmentDto> getRecruitmentList(List<RecruitmentDto> recruitmentList, List<Recruitment> recruitmentRepositoryList, User user) {
+    private List<RecruitmentDto> getRecruitmentList(List<Recruitment> recruitmentRepositoryList, Long userIdx) throws BaseException {
+        List<RecruitmentDto> recruitmentList;
+        User user = null;
+        if (userIdx != null) {
+            user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+        }
+        final User finalUser = user;
+
         recruitmentList = recruitmentRepositoryList.stream()
-                .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                        recruitment.getLeader().getNickname(), recruitment.getParticipants().size(), recruitment.getParticipantLimit(), recruitment.getDescription(),
-                        recruitment.getLeader().equals(user))).toList();
+                .map(recruitment -> {
+                    boolean isLeader = false;
+                    if (finalUser != null) {
+                        isLeader = recruitment.getLeader().equals(finalUser);
+                    }
+                    return new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
+                            recruitment.getLeader().getNickname(), recruitment.getParticipants().size(), recruitment.getParticipantLimit(), recruitment.getDescription(),
+                            isLeader);
+                }).toList();
         return recruitmentList;
     }
 
     // 띱 상세 조회
     public BaseResponse<RecruitResponse> getRecruitment(Long recruitmentIdx) throws BaseException {
         try {
-            User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Long userIdx = authService.getUserIdx();
             Recruitment recruitment = recruitmentRepository.findById(recruitmentIdx).orElseThrow(() -> new BaseException(INVALID_RECRUITMENT_IDX));
 
+            boolean isLeader = false;
+            if (userIdx != null) {
+                User user = userRepository.findByUserIdx(userIdx).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+                isLeader = recruitment.getLeader().equals(user);
+            }
             RecruitmentDetailDto recruitmentDetailDto = new RecruitmentDetailDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
                     recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
-                    recruitment.getLeader().equals(user),  recruitment.getStatus().equals(RECRUITING));
+                    isLeader,  recruitment.getStatus().equals(RECRUITING));
             Integer commentCount = recruitment.getComments().size();
             List<CommentDto> commentList = recruitment.getComments().stream()
-                    .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getWriter().getNickname(), comment.getCreatedDate(), comment.getContent())).toList(); //TODO: 생성일자 반환 형식 수정 필요
+                    .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getWriter().getNickname(), comment.getCreatedDate(), comment.getContent())).toList();
 
             RecruitResponse recruitResponse = new RecruitResponse(recruitmentDetailDto, commentCount, commentList);
             return new BaseResponse<>(recruitResponse);
