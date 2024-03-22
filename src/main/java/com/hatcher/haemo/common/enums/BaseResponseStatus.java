@@ -37,6 +37,14 @@ public enum BaseResponseStatus {
     // recruitment(2100-2199)
     WRONG_RECRUIT_TYPE(false, HttpStatus.NOT_FOUND, "해당 Recruit type을 찾을 수 없습니다."),
     INVALID_RECRUITMENT_IDX(false, HttpStatus.NOT_FOUND, "해당 recruitment idx로 recruitment를 찾을 수 없습니다."),
+    NO_RECRUITMENT_LEADER(false, HttpStatus.CONFLICT, "해당 recruitment의 leader가 아닙니다."),
+    BLANK_RECRUITMENT_NAME(false, HttpStatus.BAD_REQUEST, "recruitment name이 비었습니다."),
+    BLANK_RECRUITMENT_TYPE(false, HttpStatus.BAD_REQUEST, "recruitment type이 비었습니다."),
+    BLANK_PARTICIPANT_LIMIT(false, HttpStatus.BAD_REQUEST, "participant limit이 비었습니다."),
+    BLANK_CONTACT_URL(false, HttpStatus.BAD_REQUEST, "contact url이 비었습니다."),
+    BLANK_DESCRIPTION(false, HttpStatus.BAD_REQUEST, "description이 비었습니다."),
+    LARGER_THAN_CURRENT_PARTICIPANT(false, HttpStatus.CONFLICT, "입력하신 모집 인원이 현재 참여 인원보다 작습니다."),
+    NOT_RECRUITING_STATUS(false, HttpStatus.CONFLICT, "모집중 상태가 아닙니다."),
 
     // comment(2200-2299)
 
