@@ -4,6 +4,6 @@ public record NotificationDto(Long notificationIdx,
                               String name,
                               String contactUrl,
                               String leader,
-                              long participantNumber,
+                              int participantNumber,
                               Integer participantLimit,
                               String description) {}
