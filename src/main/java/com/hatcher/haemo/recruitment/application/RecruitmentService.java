@@ -303,6 +303,39 @@ public class RecruitmentService {
         }
     }
 
+    // [홈] 참여중인 띱 목록 조회(3개)
+    public BaseResponse<RecruitmentListResponse> getParticipatingList() throws BaseException {
+        try {
+            Long userIdx = authService.getUserIdx();
+            List<RecruitmentDto> recruitmentList = new ArrayList<>();
+            if (userIdx != null) { // 회원
+                User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+                // 리더로 있는 recruitment 목록 조회
+                Stream<Recruitment> leaderRecruitmentStream = user.getRecruitments().stream();
+
+                // 참여자로 있는 recruitment 목록 조회
+                Stream<Recruitment> participantRecruitmentStream = user.getParticipants().stream()
+                        .filter(participant -> participant.getStatus().equals(ACTIVE))
+                        .map(Participant::getRecruitment);
+
+                List<RecruitmentDto> sortedRecruitmentList = Stream.concat(leaderRecruitmentStream, participantRecruitmentStream)
+                        .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
+                        .limit(3) // 상위 3개
+                        .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
+                                recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
+                                recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE))).toList();
+                recruitmentList.addAll(sortedRecruitmentList);
+            } else { // 비회원
+                recruitmentList = null;
+            }
+            return new BaseResponse<>(new RecruitmentListResponse(recruitmentList));
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private static void validateLeaderRole(boolean recruitment, BaseResponseStatus responseStatus) throws BaseException {
         if (recruitment) throw new BaseException(responseStatus);
     }
