@@ -8,4 +8,5 @@ public record RecruitmentDto(Long recruitmentIdx,
                              Integer participantLimit,
                              String description,
                              boolean isLeader,
-                             boolean isDone) {}
+                             boolean isDone,
+                             boolean isParticipating) {}
