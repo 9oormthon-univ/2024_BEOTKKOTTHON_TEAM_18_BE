@@ -79,7 +79,7 @@ public class RecruitmentService {
                     List<RecruitmentDto> sortedRecruitmentList = Stream.concat(leaderRecruitmentStream, participantRecruitmentStream)
                             .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
                             .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                                    recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
+                                    recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
                                     recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE))).toList();
                     recruitmentList.addAll(sortedRecruitmentList);
                 } else { // 비회원
@@ -116,7 +116,7 @@ public class RecruitmentService {
                         isLeader = recruitment.getLeader().equals(finalUser);
                     }
                     return new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                            recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
+                            recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
                             isLeader, false);
                 }).toList();
         return recruitmentList;
@@ -134,8 +134,8 @@ public class RecruitmentService {
                 isLeader = recruitment.getLeader().equals(user);
             }
             RecruitmentDetailDto recruitmentDetailDto = new RecruitmentDetailDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                    recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
-                    isLeader,  recruitment.getStatus().equals(RECRUITING)); //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
+                    recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
+                    isLeader,  recruitment.getStatus().equals(RECRUITING));
             Integer commentCount = recruitment.getComments().size();
             List<CommentDto> commentList = recruitment.getComments().stream()
                     .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getWriter().getNickname(), comment.getCreatedDate(), comment.getContent())).toList();
@@ -159,6 +159,8 @@ public class RecruitmentService {
             validateWriter(user, recruitment);
             validateRecruitmentStatus(recruitment.getStatus().equals(DONE), NOT_RECRUITING_STATUS);
 
+            getActiveParticipantCount(recruitment);
+
             if (recruitmentEditRequest.name() != null) {
                 if (!recruitmentEditRequest.name().equals("") && !recruitmentEditRequest.name().equals(" "))
                     recruitment.modifyName(recruitmentEditRequest.name());
@@ -170,9 +172,9 @@ public class RecruitmentService {
                 else throw new BaseException(BLANK_RECRUITMENT_TYPE);
             }
             if (recruitmentEditRequest.participantLimit() != null) {
-                if (recruitmentEditRequest.participantLimit() < recruitment.getParticipants().size()+1) //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
+                if (recruitmentEditRequest.participantLimit() < (int) getActiveParticipantCount(recruitment)+1)
                     throw new BaseException(LARGER_THAN_CURRENT_PARTICIPANT);
-                else if (recruitmentEditRequest.participantLimit() == recruitment.getParticipants().size()+1) { //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
+                else if (recruitmentEditRequest.participantLimit() == (int) getActiveParticipantCount(recruitment)+1) {
                     recruitment.setStatus(DONE);
                 } else recruitment.modifyParticipantLimit(recruitmentEditRequest.participantLimit());
             }
@@ -195,6 +197,12 @@ public class RecruitmentService {
         }
     }
 
+    private static long getActiveParticipantCount(Recruitment recruitment) {
+        return recruitment.getParticipants().stream()
+                .filter(participant -> participant.getStatus().equals(ACTIVE))
+                .count();
+    }
+
     // [멤버] 띱 참여하기
     @Transactional(rollbackFor = Exception.class)
     public BaseResponse<String> participate(Long recruitmentIdx) throws BaseException {
@@ -203,14 +211,14 @@ public class RecruitmentService {
             Recruitment recruitment = recruitmentRepository.findById(recruitmentIdx).orElseThrow(() -> new BaseException(INVALID_RECRUITMENT_IDX));
             validateLeaderRole(recruitment.getLeader().equals(user), LEADER_ROLE);
 
-            if (recruitment.getParticipants().size()+2 == recruitment.getParticipantLimit()) { // 멤버 + 리더 + 현재 참여하려는 유저 //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
+            if ((int) getActiveParticipantCount(recruitment)+2 == recruitment.getParticipantLimit()) { // 멤버 + 리더 + 현재 참여하려는 유저
                 createParticipant(user, recruitment);
 
                 recruitment.setStatus(DONE);
                 recruitmentRepository.save(recruitment);
 
                 createNotifications(recruitment);
-            } else if (recruitment.getParticipants().size()+2 > recruitment.getParticipantLimit()) { //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
+            } else if ((int) getActiveParticipantCount(recruitment)+2 > recruitment.getParticipantLimit()) {
                 throw new BaseException(ALREADY_DONE_RECRUITMENT);
             } else createParticipant(user, recruitment);
             return new BaseResponse<>(SUCCESS);
@@ -322,7 +330,7 @@ public class RecruitmentService {
                         .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
                         .limit(3) // 상위 3개
                         .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                                recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
+                                recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
                                 recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE))).toList();
                 recruitmentList.addAll(sortedRecruitmentList);
             } else { // 비회원
