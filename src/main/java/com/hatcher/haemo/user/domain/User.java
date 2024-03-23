@@ -11,7 +11,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,12 +36,10 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String nickname;
 
-    @OneToMany(mappedBy = "leader")
-    @Where(clause = "status = 'ACTIVE'")
+    @OneToMany(mappedBy = "leader", fetch = FetchType.EAGER)
     private List<Recruitment> recruitments = new ArrayList<>(); // 해당 user가 leader로 있는 recruitment list
 
     @OneToMany(mappedBy = "writer")
-    @Where(clause = "status = 'ACTIVE'")
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "participant")
