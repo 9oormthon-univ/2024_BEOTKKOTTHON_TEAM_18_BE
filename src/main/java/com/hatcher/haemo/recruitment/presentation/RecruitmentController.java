@@ -90,4 +90,14 @@ public class RecruitmentController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    // [멤버] 띱 나가기
+    @PatchMapping("/{recruitmentIdx}/withdraw")
+    public BaseResponse<?> withdrawRecruitment(@PathVariable Long recruitmentIdx) {
+        try {
+            return recruitmentService.withdrawRecruitment(recruitmentIdx);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }

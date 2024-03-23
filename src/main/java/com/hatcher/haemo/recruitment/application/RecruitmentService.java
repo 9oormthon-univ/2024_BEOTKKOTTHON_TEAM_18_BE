@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.hatcher.haemo.common.constants.Constant.ACTIVE;
+import static com.hatcher.haemo.common.constants.Constant.INACTIVE;
 import static com.hatcher.haemo.common.constants.Constant.Recruitment.*;
 import static com.hatcher.haemo.common.enums.BaseResponseStatus.*;
 
@@ -64,7 +65,7 @@ public class RecruitmentService {
         try {
             Long userIdx = authService.getUserIdx();
             List<RecruitmentDto> recruitmentList = new ArrayList<>();
-            if (isParticipant) { // 참여중인 띱 목록 조회
+            if (isParticipant) { // 참여중인 띱 목록 조회 //TODO: Participant active 상태인것만
                 if (userIdx != null) {
                     User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
                     // 리더로 있는 recruitment 목록 조회
@@ -256,6 +257,27 @@ public class RecruitmentService {
                 participant.setStatus(CANCELLED);
                 participantRepository.save(participant);
             }
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // [멤버] 띱 나가기
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse<String> withdrawRecruitment(Long recruitmentIdx) throws BaseException {
+        try {
+            User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Recruitment recruitment = recruitmentRepository.findById(recruitmentIdx).orElseThrow(() -> new BaseException(INVALID_RECRUITMENT_IDX));
+            boolean isParticipant = recruitment.getParticipants().stream().anyMatch(participant -> participant.getParticipant().equals(user));
+            if (!isParticipant) throw new BaseException(NOT_MEMBER_ROLE);
+            validateRecruitmentStatus(recruitment.getStatus().equals(DONE), ALREADY_DONE_RECRUITMENT);
+
+            Participant participant = participantRepository.findByUserAndRecruitmentAndStatusEquals(user, recruitment, ACTIVE);
+            participant.setStatus(INACTIVE);
+            participantRepository.save(participant);
             return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             throw e;
