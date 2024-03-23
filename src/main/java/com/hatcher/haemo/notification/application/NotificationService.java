@@ -34,7 +34,7 @@ public class NotificationService {
                         long activeParticipantsCount = notification.getRecruitment().getParticipants().stream()
                                 .filter(participant -> participant.getStatus().equals(ACTIVE)).count();
                         return new NotificationDto(notification.getNotificationIdx(), notification.getRecruitment().getName(), notification.getRecruitment().getContactUrl(),
-                                notification.getRecruitment().getLeader().getNickname(), activeParticipantsCount+1,
+                                notification.getRecruitment().getLeader().getNickname(), (int) activeParticipantsCount+1,
                                 notification.getRecruitment().getParticipantLimit(), notification.getRecruitment().getDescription());}).toList();
             return new BaseResponse<>(new NotificationListResponse(notificationDtoList));
         } catch (BaseException e) {
