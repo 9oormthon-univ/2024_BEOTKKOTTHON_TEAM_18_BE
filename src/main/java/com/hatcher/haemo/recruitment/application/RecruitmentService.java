@@ -65,22 +65,25 @@ public class RecruitmentService {
         try {
             Long userIdx = authService.getUserIdx();
             List<RecruitmentDto> recruitmentList = new ArrayList<>();
-            if (isParticipant) { // 참여중인 띱 목록 조회 //TODO: Participant active 상태인것만
-                if (userIdx != null) {
+            if (isParticipant) { // 참여중인 띱 목록 조회
+                if (userIdx != null) { // 회원
                     User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
                     // 리더로 있는 recruitment 목록 조회
                     Stream<Recruitment> leaderRecruitmentStream = user.getRecruitments().stream();
 
                     // 참여자로 있는 recruitment 목록 조회
                     Stream<Recruitment> participantRecruitmentStream = user.getParticipants().stream()
+                            .filter(participant -> participant.getStatus().equals(ACTIVE))
                             .map(Participant::getRecruitment);
 
                     List<RecruitmentDto> sortedRecruitmentList = Stream.concat(leaderRecruitmentStream, participantRecruitmentStream)
                             .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
                             .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                                    recruitment.getLeader().getNickname(), recruitment.getParticipants().size(), recruitment.getParticipantLimit(), recruitment.getDescription(),
+                                    recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
                                     recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE))).toList();
                     recruitmentList.addAll(sortedRecruitmentList);
+                } else { // 비회원
+                    recruitmentList = null;
                 }
             } else {
                 if (type == null) { // 모집중인 띱 목록 조회
@@ -97,6 +100,7 @@ public class RecruitmentService {
         }
     }
 
+    // recruiting 상태 모집글 목록 조회
     private List<RecruitmentDto> getRecruitmentList(List<Recruitment> recruitmentRepositoryList, Long userIdx) throws BaseException {
         List<RecruitmentDto> recruitmentList;
         User user = null;
@@ -112,7 +116,7 @@ public class RecruitmentService {
                         isLeader = recruitment.getLeader().equals(finalUser);
                     }
                     return new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                            recruitment.getLeader().getNickname(), recruitment.getParticipants().size(), recruitment.getParticipantLimit(), recruitment.getDescription(),
+                            recruitment.getLeader().getNickname(), recruitment.getParticipants().size()+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
                             isLeader, false);
                 }).toList();
         return recruitmentList;
@@ -168,7 +172,7 @@ public class RecruitmentService {
             if (recruitmentEditRequest.participantLimit() != null) {
                 if (recruitmentEditRequest.participantLimit() < recruitment.getParticipants().size()+1) //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
                     throw new BaseException(LARGER_THAN_CURRENT_PARTICIPANT);
-                else if (recruitmentEditRequest.participantLimit() == recruitment.getParticipants().size()) { //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
+                else if (recruitmentEditRequest.participantLimit() == recruitment.getParticipants().size()+1) { //TODO: participantNumber 구할 때 participant 상태가 active인 것만 세기
                     recruitment.setStatus(DONE);
                 } else recruitment.modifyParticipantLimit(recruitmentEditRequest.participantLimit());
             }
@@ -279,6 +283,19 @@ public class RecruitmentService {
             participant.setStatus(INACTIVE);
             participantRepository.save(participant);
             return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // [홈] 모집중인 띱 목록 조회(3개)
+    public BaseResponse<RecruitmentListResponse> getRecruitingList() throws BaseException {
+        try {
+            Long userIdx = authService.getUserIdx();
+            List<RecruitmentDto> recruitmentList = getRecruitmentList(recruitmentRepository.findTop3ByStatusOrderByCreatedDateDesc(RECRUITING), userIdx);
+            return new BaseResponse<>(new RecruitmentListResponse(recruitmentList));
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {
