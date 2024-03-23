@@ -49,6 +49,7 @@ public enum BaseResponseStatus {
     LEADER_ROLE(false, HttpStatus.BAD_REQUEST, "리더는 띱 참여가 불가능합니다."),
     NOT_LEADER_ROLE(false, HttpStatus.BAD_REQUEST, "해당 띱의 리더가 아닙니다."),
     NOT_MEMBER_ROLE(false, HttpStatus.BAD_REQUEST, "해당 띱의 멤버가 아닙니다."),
+    LEADER_CANNOT_WITHDRAW(false, HttpStatus.BAD_REQUEST, "띱의 리더는 나갈 수 없습니다."),
 
     // comment(2200-2299)
     INVALID_COMMENT_IDX(false, HttpStatus.NOT_FOUND, "해당 comment idx로 comment를 찾을 수 없습니다."),

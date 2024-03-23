@@ -80,7 +80,10 @@ public class RecruitmentService {
                             .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
                             .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
                                     recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
-                                    recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE))).toList();
+                                    recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE)
+                                    //,
+                                    //recruitment.getParticipants().contains(participantRepository.findByParticipantAndRecruitmentAndStatusEquals(user, recruitment, RECRUITING))
+                                    )).toList();
                     recruitmentList.addAll(sortedRecruitmentList);
                 } else { // 비회원
                     recruitmentList = null;
@@ -117,7 +120,9 @@ public class RecruitmentService {
                     }
                     return new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
                             recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
-                            isLeader, false);
+                            isLeader, false
+                            //, recruitment.getParticipants().contains(participantRepository.findByParticipantAndRecruitmentAndStatusEquals(finalUser, recruitment, RECRUITING))
+                    );
                 }).toList();
         return recruitmentList;
     }
@@ -284,6 +289,7 @@ public class RecruitmentService {
         try {
             User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             Recruitment recruitment = recruitmentRepository.findById(recruitmentIdx).orElseThrow(() -> new BaseException(INVALID_RECRUITMENT_IDX));
+            if (recruitment.getLeader().equals(user)) throw new BaseException(LEADER_CANNOT_WITHDRAW);
             boolean isParticipant = recruitment.getParticipants().stream().anyMatch(participant -> participant.getParticipant().equals(user));
             if (!isParticipant) throw new BaseException(NOT_MEMBER_ROLE);
             validateRecruitmentStatus(recruitment.getStatus().equals(DONE), ALREADY_DONE_RECRUITMENT);
