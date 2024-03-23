@@ -10,7 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,11 +44,9 @@ public class Recruitment extends BaseEntity {
     private String description;
 
     @OneToMany(mappedBy = "recruitment")
-    @Where(clause = "status = 'ACTIVE'")
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "recruitment")
-    @Where(clause = "status = 'ACTIVE'")
     private List<Participant> participants = new ArrayList<>(); // 띱을 나가도 이 리스트에는 있고 participant inactive 처리
 
     @Builder
