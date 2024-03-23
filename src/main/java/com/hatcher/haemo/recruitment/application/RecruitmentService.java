@@ -297,9 +297,11 @@ public class RecruitmentService {
     private void createNotifications(Recruitment recruitment) {
         Notification leaderNotification = new Notification(recruitment.getLeader(), recruitment);
         notificationRepository.save(leaderNotification);
+        leaderNotification.setUser(recruitment.getLeader());
         for (Participant participant : recruitment.getParticipants()) {
             Notification participantNotification = new Notification(participant.getParticipant(), recruitment);
             notificationRepository.save(participantNotification);
+            participantNotification.setUser(participant.getParticipant());
         }
     }
 
