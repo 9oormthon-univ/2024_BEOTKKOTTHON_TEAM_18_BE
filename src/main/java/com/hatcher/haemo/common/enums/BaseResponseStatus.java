@@ -51,6 +51,10 @@ public enum BaseResponseStatus {
     NOT_MEMBER_ROLE(false, HttpStatus.BAD_REQUEST, "해당 띱의 멤버가 아닙니다."),
 
     // comment(2200-2299)
+    INVALID_COMMENT_IDX(false, HttpStatus.NOT_FOUND, "해당 comment idx로 comment를 찾을 수 없습니다."),
+    NO_COMMENT_WRITER(false, HttpStatus.BAD_REQUEST, "해당 댓글 작성자가 아닙니다."),
+    ALREADY_DELETED_COMMENT(false, HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
+    BLANK_COMMENT_CONTENT(false, HttpStatus.BAD_REQUEST, "댓글 내용이 비었습니다."),
 
     // notification(2300-2399)
     INVALID_NOTIFICATION_IDX(false, HttpStatus.NOT_FOUND, "해당 notification idx로 notification을 찾을 수 없습니다."),

@@ -1,6 +1,7 @@
 package com.hatcher.haemo.comment.application;
 
 import com.hatcher.haemo.comment.domain.Comment;
+import com.hatcher.haemo.comment.dto.CommentEditRequest;
 import com.hatcher.haemo.comment.dto.CommentPostRequest;
 import com.hatcher.haemo.comment.repository.CommentRepository;
 import com.hatcher.haemo.common.BaseResponse;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.hatcher.haemo.common.constants.Constant.INACTIVE;
 import static com.hatcher.haemo.common.enums.BaseResponseStatus.*;
 
 @Service
@@ -41,5 +43,32 @@ public class CommentService {
         } catch (Exception e) {
             throw new BaseException(INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // [작성자] 댓글 수정
+    @Transactional(rollbackFor = Exception.class)
+    public BaseResponse<String> editComment(Long commentIdx, CommentEditRequest commentEditRequest) throws BaseException {
+        try {
+            Comment comment = commentRepository.findById(commentIdx).orElseThrow(() -> new BaseException(INVALID_COMMENT_IDX));
+            User writer = userRepository.findByUserIdx(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(writer, comment);
+
+            if (commentEditRequest.content() != null) {
+                if (!commentEditRequest.content().equals("") && !commentEditRequest.content().equals(" "))
+                    comment.modifyContent(commentEditRequest.content());
+                else throw new BaseException(BLANK_COMMENT_CONTENT);
+            }
+            commentRepository.save(comment);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static void validateWriter(User user, Comment comment) throws BaseException {
+        if (!comment.getWriter().equals(user)) throw new BaseException(NO_COMMENT_WRITER);
+        if (comment.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_COMMENT);
     }
 }

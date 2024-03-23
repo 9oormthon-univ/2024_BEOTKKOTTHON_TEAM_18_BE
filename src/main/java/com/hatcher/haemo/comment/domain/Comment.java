@@ -47,4 +47,8 @@ public class Comment extends BaseEntity {
         this.writer = writer;
         writer.getComments().add(this);
     }
+
+    public void modifyContent(String content) {
+        this.content = content;
+    }
 }
