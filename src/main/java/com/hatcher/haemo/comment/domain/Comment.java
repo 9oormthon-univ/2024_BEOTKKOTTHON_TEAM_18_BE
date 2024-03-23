@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import static com.hatcher.haemo.common.constants.Constant.INACTIVE;
+
 @Entity
 @Getter
 @DynamicInsert
@@ -50,5 +52,9 @@ public class Comment extends BaseEntity {
 
     public void modifyContent(String content) {
         this.content = content;
+    }
+
+    public void delete() {
+        this.setStatus(INACTIVE);
     }
 }
