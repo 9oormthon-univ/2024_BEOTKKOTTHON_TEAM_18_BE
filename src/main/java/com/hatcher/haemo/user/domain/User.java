@@ -46,11 +46,9 @@ public class User extends BaseEntity {
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "participant")
-    @Where(clause = "status = 'ACTIVE'")
     private List<Participant> participants = new ArrayList<>(); // 해당 user가 participant로 있는 recruitment list(leader로 있는 모임은 제외)
 
     @OneToMany(mappedBy = "user")
-    @Where(clause = "status = 'ACTIVE'")
     private List<Notification> notifications = new ArrayList<>();
 
     @Builder
