@@ -10,4 +10,5 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
 
     List<Recruitment> findByStatusOrderByCreatedDateDesc(String status);
     List<Recruitment> findByTypeAndStatusEqualsOrderByCreatedDateDesc(RecruitType type, String status);
+    List<Recruitment> findTop3ByStatusOrderByCreatedDateDesc(String status);
 }

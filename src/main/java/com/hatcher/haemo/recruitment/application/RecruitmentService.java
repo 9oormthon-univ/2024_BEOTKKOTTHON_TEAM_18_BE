@@ -97,6 +97,7 @@ public class RecruitmentService {
         }
     }
 
+    // recruiting 상태 모집글 목록 조회
     private List<RecruitmentDto> getRecruitmentList(List<Recruitment> recruitmentRepositoryList, Long userIdx) throws BaseException {
         List<RecruitmentDto> recruitmentList;
         User user = null;
@@ -279,6 +280,19 @@ public class RecruitmentService {
             participant.setStatus(INACTIVE);
             participantRepository.save(participant);
             return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // [홈] 모집중인 띱 목록 조회(3개)
+    public BaseResponse<RecruitmentListResponse> getRecruitingList() throws BaseException {
+        try {
+            Long userIdx = authService.getUserIdx();
+            List<RecruitmentDto> recruitmentList = getRecruitmentList(recruitmentRepository.findTop3ByStatusOrderByCreatedDateDesc(RECRUITING), userIdx);
+            return new BaseResponse<>(new RecruitmentListResponse(recruitmentList));
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {

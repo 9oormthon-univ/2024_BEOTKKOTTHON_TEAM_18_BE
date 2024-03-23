@@ -100,4 +100,14 @@ public class RecruitmentController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
+    // 모집중인 띱 목록 조회(3개)
+    @GetMapping("/recruiting")
+    public BaseResponse<RecruitmentListResponse> getRecruitingList() {
+        try {
+            return recruitmentService.getRecruitingList();
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
