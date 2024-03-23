@@ -71,11 +71,21 @@ public class RecruitmentController {
         }
     }
 
-    // 띱 모집완료 처리
+    // [리더] 띱 모집완료 처리
     @PatchMapping("/{recruitmentIdx}/done")
     public BaseResponse<?> makeRecruitmentDone(@PathVariable Long recruitmentIdx) {
         try {
             return recruitmentService.makeRecruitmentDone(recruitmentIdx);
+        } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // [리더] 띱 모집취소 처리
+    @PatchMapping("/{recruitmentIdx}/cancel")
+    public BaseResponse<?> cancelRecruitment(@PathVariable Long recruitmentIdx) {
+        try {
+            return recruitmentService.cancelRecruitment(recruitmentIdx);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
