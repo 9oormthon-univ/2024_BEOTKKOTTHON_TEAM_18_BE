@@ -79,7 +79,7 @@ public class Recruitment extends BaseEntity {
         this.contactUrl = contactUrl;
     }
 
-    public void modifyDesscription(String description) {
+    public void modifyDescription(String description) {
         this.description = description;
     }
 

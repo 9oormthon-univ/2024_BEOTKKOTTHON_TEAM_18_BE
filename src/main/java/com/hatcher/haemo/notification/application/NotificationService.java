@@ -2,6 +2,7 @@ package com.hatcher.haemo.notification.application;
 
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.common.exception.BaseException;
+import com.hatcher.haemo.notification.domain.Notification;
 import com.hatcher.haemo.notification.dto.NotificationDto;
 import com.hatcher.haemo.notification.dto.NotificationListResponse;
 import com.hatcher.haemo.notification.repository.NotificationRepository;
@@ -14,8 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.hatcher.haemo.common.constants.Constant.ACTIVE;
-import static com.hatcher.haemo.common.enums.BaseResponseStatus.INTERNAL_SERVER_ERROR;
-import static com.hatcher.haemo.common.enums.BaseResponseStatus.INVALID_USER_IDX;
+import static com.hatcher.haemo.common.enums.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +37,21 @@ public class NotificationService {
                                 notification.getRecruitment().getLeader().getNickname(), activeParticipantsCount+1,
                                 notification.getRecruitment().getParticipantLimit(), notification.getRecruitment().getDescription());}).toList();
             return new BaseResponse<>(new NotificationListResponse(notificationDtoList));
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // 알림 삭제
+    public BaseResponse<String> deleteNotification(Long notificationIdx) throws BaseException {
+        try {
+            User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            Notification notification = notificationRepository.findById(notificationIdx).orElseThrow(() -> new BaseException(INVALID_NOTIFICATION_IDX));
+            notificationRepository.delete(notification);
+            notification.removeNotificationFromUser(user);
+            return new BaseResponse<>(SUCCESS);
         } catch (BaseException e) {
             throw e;
         } catch (Exception e) {

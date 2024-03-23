@@ -52,6 +52,9 @@ public enum BaseResponseStatus {
 
     // comment(2200-2299)
 
+    // notification(2300-2399)
+    INVALID_NOTIFICATION_IDX(false, HttpStatus.NOT_FOUND, "해당 notification idx로 notification을 찾을 수 없습니다."),
+
 
     /**
      * 3000: Response 오류

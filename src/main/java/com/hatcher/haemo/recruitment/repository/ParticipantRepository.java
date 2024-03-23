@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface ParticipantRepository extends JpaRepository<Participant, Long> {
     List<Participant> findByRecruitmentAndStatusEquals(Recruitment recruitment, String status);
-    Participant findByUserAndRecruitmentAndStatusEquals(User user, Recruitment recruitment, String status);
+    Participant findByParticipantAndRecruitmentAndStatusEquals(User user, Recruitment recruitment, String status);
 }

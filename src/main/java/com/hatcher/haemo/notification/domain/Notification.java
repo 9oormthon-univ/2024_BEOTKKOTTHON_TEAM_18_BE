@@ -33,6 +33,11 @@ public class Notification extends BaseEntity {
         user.getNotifications().add(this);
     }
 
+    public void removeNotificationFromUser(User user) {
+        this.user = user;
+        user.getNotifications().remove(this);
+    }
+
     @Builder
     public Notification(User user, Recruitment recruitment) {
         this.user = user;
