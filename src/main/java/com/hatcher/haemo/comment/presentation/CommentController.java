@@ -29,9 +29,18 @@ public class CommentController {
 
     // 댓글 수정
     @PatchMapping("/{commentIdx}/edit")
-    public BaseResponse<?> editComment(@PathVariable Long commentIdx, @RequestBody CommentEditRequest commentEditRequest) {
+    public BaseResponse<String> editComment(@PathVariable Long commentIdx, @RequestBody CommentEditRequest commentEditRequest) {
         try {
             return commentService.editComment(commentIdx, commentEditRequest);
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    @PatchMapping("/{commentIdx}/delete")
+    public BaseResponse<String> deleteComment(@PathVariable Long commentIdx) {
+        try {
+            return commentService.deleteComment(commentIdx);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }

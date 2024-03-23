@@ -67,6 +67,23 @@ public class CommentService {
         }
     }
 
+    // [작성자] 댓글 삭제
+    public BaseResponse<String> deleteComment(Long commentIdx) throws BaseException {
+        try {
+            Comment comment = commentRepository.findById(commentIdx).orElseThrow(() -> new BaseException(INVALID_COMMENT_IDX));
+            User writer = userRepository.findByUserIdx(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
+            validateWriter(writer, comment);
+
+            comment.delete();
+            commentRepository.save(comment);
+            return new BaseResponse<>(SUCCESS);
+        } catch (BaseException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BaseException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private static void validateWriter(User user, Comment comment) throws BaseException {
         if (!comment.getWriter().equals(user)) throw new BaseException(NO_COMMENT_WRITER);
         if (comment.getStatus().equals(INACTIVE)) throw new BaseException(ALREADY_DELETED_COMMENT);

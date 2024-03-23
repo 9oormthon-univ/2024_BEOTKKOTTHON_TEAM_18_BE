@@ -138,6 +138,7 @@ public class RecruitmentService {
                     isLeader,  recruitment.getStatus().equals(RECRUITING));
             Integer commentCount = recruitment.getComments().size();
             List<CommentDto> commentList = recruitment.getComments().stream()
+                    .filter(comment -> comment.getStatus().equals(ACTIVE))
                     .map(comment -> new CommentDto(comment.getCommentIdx(), comment.getWriter().getNickname(), comment.getCreatedDate(), comment.getContent())).toList();
 
             RecruitResponse recruitResponse = new RecruitResponse(recruitmentDetailDto, commentCount, commentList);
