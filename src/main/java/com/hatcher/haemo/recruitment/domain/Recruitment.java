@@ -50,7 +50,7 @@ public class Recruitment extends BaseEntity {
 
     @OneToMany(mappedBy = "recruitment")
     @Where(clause = "status = 'ACTIVE'")
-    private List<Participant> participants = new ArrayList<>();
+    private List<Participant> participants = new ArrayList<>(); // 띱을 나가도 이 리스트에는 있고 participant inactive 처리
 
     @Builder
     public Recruitment(String name, User leader, RecruitType type, Integer participantLimit, String contactUrl, String description) {
