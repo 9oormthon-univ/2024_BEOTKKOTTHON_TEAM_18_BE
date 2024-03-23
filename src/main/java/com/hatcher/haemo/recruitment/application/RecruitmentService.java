@@ -179,7 +179,7 @@ public class RecruitmentService {
             }
             if (recruitmentEditRequest.description() != null) {
                 if (!recruitmentEditRequest.description().equals("") && !recruitmentEditRequest.description().equals(" "))
-                    recruitment.modifyDesscription(recruitmentEditRequest.description());
+                    recruitment.modifyDescription(recruitmentEditRequest.description());
                 else throw new BaseException(BLANK_DESCRIPTION);
             }
             recruitmentRepository.save(recruitment);
@@ -275,7 +275,7 @@ public class RecruitmentService {
             if (!isParticipant) throw new BaseException(NOT_MEMBER_ROLE);
             validateRecruitmentStatus(recruitment.getStatus().equals(DONE), ALREADY_DONE_RECRUITMENT);
 
-            Participant participant = participantRepository.findByUserAndRecruitmentAndStatusEquals(user, recruitment, ACTIVE);
+            Participant participant = participantRepository.findByParticipantAndRecruitmentAndStatusEquals(user, recruitment, ACTIVE);
             participant.setStatus(INACTIVE);
             participantRepository.save(participant);
             return new BaseResponse<>(SUCCESS);
