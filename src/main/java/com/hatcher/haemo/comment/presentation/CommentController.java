@@ -1,14 +1,12 @@
 package com.hatcher.haemo.comment.presentation;
 
 import com.hatcher.haemo.comment.application.CommentService;
+import com.hatcher.haemo.comment.dto.CommentEditRequest;
 import com.hatcher.haemo.comment.dto.CommentPostRequest;
 import com.hatcher.haemo.common.BaseResponse;
 import com.hatcher.haemo.common.exception.BaseException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.hatcher.haemo.common.constants.RequestURI.comment;
 
@@ -25,6 +23,16 @@ public class CommentController {
         try {
             return commentService.postComment(commentPostRequest);
         } catch(BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
+
+    // 댓글 수정
+    @PatchMapping("/{commentIdx}/edit")
+    public BaseResponse<?> editComment(@PathVariable Long commentIdx, @RequestBody CommentEditRequest commentEditRequest) {
+        try {
+            return commentService.editComment(commentIdx, commentEditRequest);
+        } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
     }
