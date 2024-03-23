@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.hatcher.haemo.common.constants.RequestURI.comment;
-import static com.hatcher.haemo.common.enums.BaseResponseStatus.SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +23,7 @@ public class CommentController {
     @PostMapping("")
     public BaseResponse<String> postComment(@RequestBody CommentPostRequest commentPostRequest) {
         try {
-            commentService.postComment(commentPostRequest);
-            return new BaseResponse<>(SUCCESS);
+            return commentService.postComment(commentPostRequest);
         } catch(BaseException e) {
             return new BaseResponse<>(e.getStatus());
         }
