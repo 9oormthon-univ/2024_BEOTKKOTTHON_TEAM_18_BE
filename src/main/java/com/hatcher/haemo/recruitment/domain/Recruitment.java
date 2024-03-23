@@ -50,7 +50,7 @@ public class Recruitment extends BaseEntity {
 
     @OneToMany(mappedBy = "recruitment")
     @Where(clause = "status = 'ACTIVE'")
-    private List<Participant> participants = new ArrayList<>();
+    private List<Participant> participants = new ArrayList<>(); // 띱을 나가도 이 리스트에는 있고 participant inactive 처리
 
     @Builder
     public Recruitment(String name, User leader, RecruitType type, Integer participantLimit, String contactUrl, String description) {
@@ -65,5 +65,25 @@ public class Recruitment extends BaseEntity {
     public void setLeader(User leader) {
         this.leader = leader;
         leader.getRecruitments().add(this);
+    }
+
+    public void modifyName(String name) {
+        this.name = name;
+    }
+
+    public void modifyType(RecruitType type) {
+        this.type = type;
+    }
+
+    public void modifyContactUrl(String contactUrl) {
+        this.contactUrl = contactUrl;
+    }
+
+    public void modifyDescription(String description) {
+        this.description = description;
+    }
+
+    public void modifyParticipantLimit(Integer participantLimit) {
+        this.participantLimit = participantLimit;
     }
 }

@@ -1,4 +1,5 @@
 package com.hatcher.haemo.recruitment.dto;
 
-public record RecruitmentListResponse() {
-}
+import java.util.List;
+
+public record RecruitmentListResponse(List<RecruitmentDto> recruitmentList) {}
