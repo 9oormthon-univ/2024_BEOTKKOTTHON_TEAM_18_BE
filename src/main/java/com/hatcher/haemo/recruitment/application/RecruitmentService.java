@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.hatcher.haemo.common.constants.Constant.ACTIVE;
@@ -78,9 +80,15 @@ public class RecruitmentService {
 
                     List<RecruitmentDto> sortedRecruitmentList = Stream.concat(leaderRecruitmentStream, participantRecruitmentStream)
                             .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
-                            .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
-                                    recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
-                                    recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE))).toList();
+                            .map(recruitment -> {
+                                boolean isParticipating = user.getParticipants().stream()
+                                        .anyMatch(participant -> participant.getStatus().equals(ACTIVE) && participant.getRecruitment().equals(recruitment))
+                                        || recruitment.getLeader().equals(user);
+                        return new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
+                                recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
+                                recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE),
+                                isParticipating);
+                            }).toList();
                     recruitmentList.addAll(sortedRecruitmentList);
                 } else { // 비회원
                     recruitmentList = null;
@@ -112,12 +120,16 @@ public class RecruitmentService {
         recruitmentList = recruitmentRepositoryList.stream()
                 .map(recruitment -> {
                     boolean isLeader = false;
+                    boolean isDone = recruitment.getStatus().equals(DONE);
+                    boolean isParticipating = false;
                     if (finalUser != null) {
                         isLeader = recruitment.getLeader().equals(finalUser);
+                        isParticipating = isLeader || recruitment.getParticipants().stream()
+                                .anyMatch(participant -> participant.getParticipant().equals(finalUser) && participant.getStatus().equals(ACTIVE));
                     }
                     return new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
                             recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
-                            isLeader, false);
+                            isLeader, isDone, isParticipating);
                 }).toList();
         return recruitmentList;
     }
@@ -284,6 +296,7 @@ public class RecruitmentService {
         try {
             User user = userRepository.findById(userService.getUserIdxWithValidation()).orElseThrow(() -> new BaseException(INVALID_USER_IDX));
             Recruitment recruitment = recruitmentRepository.findById(recruitmentIdx).orElseThrow(() -> new BaseException(INVALID_RECRUITMENT_IDX));
+            if (recruitment.getLeader().equals(user)) throw new BaseException(LEADER_CANNOT_WITHDRAW);
             boolean isParticipant = recruitment.getParticipants().stream().anyMatch(participant -> participant.getParticipant().equals(user));
             if (!isParticipant) throw new BaseException(NOT_MEMBER_ROLE);
             validateRecruitmentStatus(recruitment.getStatus().equals(DONE), ALREADY_DONE_RECRUITMENT);
@@ -327,12 +340,17 @@ public class RecruitmentService {
                         .filter(participant -> participant.getStatus().equals(ACTIVE))
                         .map(Participant::getRecruitment);
 
+                Set<Long> participatingRecruitmentIds = user.getParticipants().stream()
+                        .filter(participant -> participant.getStatus().equals(ACTIVE))
+                        .map(participant -> participant.getRecruitment().getRecruitmentIdx())
+                        .collect(Collectors.toSet());
+
                 List<RecruitmentDto> sortedRecruitmentList = Stream.concat(leaderRecruitmentStream, participantRecruitmentStream)
                         .sorted(Comparator.comparing(Recruitment::getCreatedDate).reversed())
                         .limit(3) // 상위 3개
                         .map(recruitment -> new RecruitmentDto(recruitment.getRecruitmentIdx(), recruitment.getType().getDescription(), recruitment.getName(),
                                 recruitment.getLeader().getNickname(), (int) getActiveParticipantCount(recruitment)+1, recruitment.getParticipantLimit(), recruitment.getDescription(),
-                                recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE))).toList();
+                                recruitment.getLeader().equals(user), recruitment.getStatus().equals(DONE), participatingRecruitmentIds.contains(recruitment.getRecruitmentIdx()) || recruitment.getLeader().equals(user))).toList();
                 recruitmentList.addAll(sortedRecruitmentList);
             } else { // 비회원
                 recruitmentList = null;
